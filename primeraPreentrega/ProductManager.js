@@ -1,4 +1,4 @@
-import { promises as fs } from 'fs';
+import fs from 'fs';
 
 class ProductsManager {
     constructor(filePath = 'productos.json') {
@@ -82,7 +82,7 @@ class ProductsManager {
         try {
             const data = fs.readFileSync(this.path, 'utf8');
             this.products = JSON.parse(data);
-            console.log('Datos cargados desde el archivo:', this.path);
+            console.log(`Datos cargados desde el archivo: "${this.path}"`);
         } catch (error) {
             console.error('Error al cargar datos desde el archivo:', `El archivo "${this.path}" no está bien definido o no existe`);
             // Si hay un error al cargar desde el archivo, iniciar con un array vacío
@@ -94,7 +94,7 @@ class ProductsManager {
 //Crear una instancia de la clase ProductsManager
 const productos = new ProductsManager();
 // Mostrar la lista inicial de productos
-console.log(productos.getProducts());
+//console.log(productos.getProducts());
 
 const producto1 = { title: "producto 1", description: "Este es el primer producto de prueba", price: 1590, thumbnail: "Sin imagen", code: "abc123", stock: 25, status: true, category: "products" }
 

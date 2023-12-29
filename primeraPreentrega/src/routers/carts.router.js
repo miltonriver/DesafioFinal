@@ -6,25 +6,19 @@ const cartsRouter = Router();
 cartsRouter.get('/:cid', async (req, res) => {
     const { cid } = req.params
     try {
-        const cartId = carts.filter(cart => cart.id === Number(cid))
+        const cartId = await carts.getCartById(Number(cid))
         
-        //Verificamos si el carrito está vacio o no existe el ID del mismo
-        if (cartId.length === 0){
-            res.status(400).send({
-                status: 'error',
-                message: 'El carrito agregado no existe o está vacío, no se puede agregar',
-                carts
+        if (cartId.length !== 0){
+            res.status(200).send({
+                status: "succes",
+                cartId
             })
         }
-        res.status(200).send({
-            status: "succes",
-            cartId
-        })
         
     } catch (error) {
         res.status(400).send({
             status: 'error',
-            message: 'El carrito está vacio'
+            message: 'El carrito solicitado no existe o está vacío'
         })
         
     }
@@ -32,15 +26,13 @@ cartsRouter.get('/:cid', async (req, res) => {
 })
 
 cartsRouter.post('/', async (req, res) => {
-    const cart = req.body;
-    try {
-        cart.id = carts.length + 1
-    
-        carts.push(cart);
+    try {    
+        const newCarts = await carts.createCart()
+        console.log(newCarts)
         res.status(201).send({
             status: "success",
             message: 'El producto se ha agregado al carrito',
-            carts
+            newCarts
         })
         
     } catch (error) {
@@ -61,8 +53,8 @@ cartsRouter.post('/:cid/product/:pid', async (req, res) => {
             res.status(200).send({
                 status: "succes",
                 message: 'Producto agregado al carrito con éxito',
-                payload: cartId,
-                carts
+                payload: await cartId,
+                //carts
             })
         
     } catch (error) {

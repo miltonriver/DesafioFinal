@@ -1,5 +1,4 @@
-import { promises as fs } from 'fs';
-
+import fs from 'fs';
 class CartsManager {
     constructor(FilePath = 'carrito.json') {
         this.carts = [];
@@ -9,7 +8,7 @@ class CartsManager {
 
     async readFile() {
         try {
-            const dataCarts = await fs.readFile(this.path, 'utf-8')
+            const dataCarts = await fs.promises.readFile(this.path, 'utf-8')
             return JSON.parse(dataCarts)
         } catch (error) {
             return []
@@ -17,7 +16,7 @@ class CartsManager {
     }
 
     async getCarts() {
-        return this.readFile(this.path)
+        return await this.readFile()
             .then(data => data)
             .catch(error => {
                 console.error(`Error al obtener carritos: ${error}`);
@@ -26,16 +25,19 @@ class CartsManager {
     }
 
     async createCart() {
-        const carts = await this.readFile()
+        
         try {
+            const carts = await this.readFile()
+
             let newCart = {
                 id: carts.length + 1,
                 products: []
             }
             carts.push(newCart)
+            //console.log(carts)
 
-            this.saveToFile()
-            await fs.writeFile(this.path, JSON.stringify(carts, null, 2), 'utf-8')
+            await this.saveToFile()
+            await fs.promises.writeFile(this.path, JSON.stringify(carts, null, 2), { encoding: 'utf-8' })
             return carts
 
         } catch (error) {
@@ -44,13 +46,17 @@ class CartsManager {
     }
 
     async getCartById(cid) {
-        const carts = await this.readFile()
         
         try {
+            const carts = await this.readFile()
             const cardId = carts.find(cart => cart.id === cid)
-            return cardId
+
+            return cardId 
+            //return `El carrito con ID "${cid}"no existe`;
+            
         } catch (error) {
-            return `El carrito con ID "${cid}"no existe ${error}`
+            return `El carrito con ID "${cid}"no existe ${error}`;
+            null
         }
     }
 
@@ -69,12 +75,11 @@ class CartsManager {
                     id: pid,
                     quantity: 1
                 })
-                console.log(carts[cartIndex])
             } else {
                 carts[cartIndex].products[productIndex].quantity ++
             }
             
-            await fs.writeFile(this.path, JSON.stringify(carts, null, 2), 'utf-8')
+            await fs.promises.writeFile(this.path, JSON.stringify(carts, null, 2), 'utf-8')
             return carts[cartIndex]
             
         } catch (error) {
@@ -82,9 +87,9 @@ class CartsManager {
         }
     }
 
-    saveToFile() {
+    async saveToFile() {
         const data = JSON.stringify(this.carts, null, 2);
-        fs.writeFile(this.path, data, 'utf8')
+        await fs.promises.writeFile(this.path, data, 'utf8')
             .then(() => {
                 console.log('Datos guardados en el archivo:', this.path);
             })
@@ -97,7 +102,7 @@ class CartsManager {
         try {
             const data = fs.readFileSync(this.path, 'utf8');
             this.carts = JSON.parse(data);
-            console.log('Datos cargados desde el archivo:', this.path);
+            console.log(`Datos cargados desde el archivo: "${this.path}"`);
         } catch (error) {
             console.error('Error al cargar datos desde el archivo:', `El archivo "${this.path}" no está bien definido o no existe`);
             // Si hay un error al cargar desde el archivo, iniciar con un array vacío
@@ -109,9 +114,9 @@ class CartsManager {
 
 const cartsService = new CartsManager()
 
-// console.log(cartsService.createCart())
-// console.log(cartsService.createCart())
-console.log(cartsService.getCarts())
-console.log(cartsService.getCartById(4))
+//console.log(await cartsService.createCart())
+//console.log(cartsService.createCart())
+//console.log(await cartsService.getCarts())
+console.log(await cartsService.getCartById(3))
 
 export default cartsService
